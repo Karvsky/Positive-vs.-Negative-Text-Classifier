@@ -1,0 +1,26 @@
+Sentiment Analysis: The Evolution of an NLTK Classifier
+This project documents the process of refining a Machine Learning model to recognize emotions in text—transitioning from a basic word-based approach to an advanced system capable of understanding context.
+
+The Journey to Improved Effectiveness
+Phase 1: The Classic Approach (NLTK.py)
+The initial version of the model relied on a small set of raw text files and a simple unigram analysis (examining single words in isolation).
+
+The Problem: Although the model reported high Accuracy during testing, it frequently failed in real-world scenarios.
+
+The Cause: A limited training dataset meant that neutral or random words gained disproportionate statistical weight. Furthermore, the model was "blind" to negations; it treated sentences like "good" and "not good" almost identically because it stripped away the word "not" as an irrelevant stop word.
+
+Phase 2: Optimization and Contextual Awareness (main.py)
+The second iteration introduced critical changes that addressed the flaws of its predecessor:
+
+Data Scaling: Moving to a comprehensive CSV dataset (approx. 50,000 IMDB reviews) allowed the model to "learn" natural language patterns more effectively and normalize word weights.
+
+Implementation of N-grams: By introducing bigrams (word pairs), the model began to recognize relationships. Now, ('not', 'good') is treated as a single, strongly negative feature rather than two independent tokens.
+
+Intelligent Stop Words: The filtering logic was overhauled. By "saving" crucial words like not, but, very, and too, the model gained the ability to understand sentence structure and shifts in sentiment (e.g., a change of heart after the conjunction "but").
+
+Solution Architecture
+Preprocessing: Text is cleaned of HTML tags and special characters. It is then converted to lowercase and lemmatized (reduced to its dictionary base form).
+
+Feature Engineering: For every review, a feature dictionary is constructed containing both individual words (unigrams) and their neighboring pairs (bigrams).
+
+Classification: The Naive Bayes algorithm calculates the final probability. With the larger database, statistical anomalies—where a neutral word might accidentally correlate with a specific class—have been eliminated.
