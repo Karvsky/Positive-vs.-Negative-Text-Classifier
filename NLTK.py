@@ -57,7 +57,7 @@ data_after_training = NaiveBayesClassifier.train(train_set)
 accuracy = nltk.classify.accuracy(data_after_training, test_set)
 print(f"\nAccuracy: {accuracy * 100:.2f}%")
 
-new_opinion = "I love this film"
+new_opinion = input("Type a text: ")
 new_opinion_tokenize = word_tokenize(new_opinion.lower())
 clean_tokens = [
     lemmatizer.lemmatize(word) 
