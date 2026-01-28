@@ -55,7 +55,7 @@ train_set, test_set = train_test_split(dataset, test_size=0.1, random_state=70)
 data_after_training = NaiveBayesClassifier.train(train_set)
 
 accuracy = nltk.classify.accuracy(data_after_training, test_set)
-print(f"\nDokładność modelu: {accuracy * 100:.2f}%")
+print(f"\nAccuracy: {accuracy * 100:.2f}%")
 
 new_opinion = "I love this film"
 new_opinion_tokenize = word_tokenize(new_opinion.lower())
@@ -66,5 +66,5 @@ clean_tokens = [
 ]
 ready_opinion_to_test = format_features(clean_tokens)
 result = data_after_training.classify(ready_opinion_to_test)
-print(f"Tekst: {new_opinion}")
-print(f"Wynik klasyfikacji: {result}")
+print(f"Text: {new_opinion}")
+print(f"Result: {result}")
