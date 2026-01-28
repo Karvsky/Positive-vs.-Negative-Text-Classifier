@@ -31,11 +31,12 @@ for index, row in df.iterrows():
     label = row['sentiment'].upper()
     tokens = word_tokenize(text.lower())
 
-    clean_words = [
-        lemmatizer.lemmatize(word) 
-        for word in tokens 
-        if word not in stop_words and word.isalnum()
-    ]
+    clean_words = []
+
+    for word in tokens:
+        if word not in stop_words and word.isalnum():
+            lematized_word = lemmatizer.lemmatize(word)
+            clean_words.append(lematized_word)
 
     list_of_bigrams = list(ngrams(clean_words, 2))
 
@@ -51,14 +52,20 @@ data_after_training = NaiveBayesClassifier.train(train_set)
 accuracy = nltk.classify.accuracy(data_after_training, test_set)
 print(f"\nAccuracy: {accuracy * 100:.2f}%")
 
-new_opinion = "The oven is a real monster, it heats up in seconds!"
+new_opinion = input("Type a text: ")
 new_tokens = word_tokenize(new_opinion.lower())
-new_clean = [lemmatizer.lemmatize(w) for w in new_tokens if w not in stop_words and w.isalnum()]
+
+new_clean = []
+
+for w in new_tokens:
+    if w not in stop_words:
+        if w.isalnum():
+            lematized_word = lemmatizer.lemmatize(w)
+            new_clean.append(lematized_word)
 
 new_bigrams = list(ngrams(new_clean, 2))
 ready_to_test = format_features(new_clean)
 ready_to_test.update({bg: True for bg in new_bigrams})
 
 result = data_after_training.classify(ready_to_test)
-print(f"Text: {new_opinion}")
 print(f"Result: {result}")
