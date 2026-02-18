@@ -1,71 +1,52 @@
 import pandas as pd
 import re
 import nltk
+import pickle
 from nltk.tokenize import word_tokenize   
 from nltk.corpus import stopwords         
 from nltk.stem import WordNetLemmatizer  
 from nltk.classify import NaiveBayesClassifier
 from nltk.util import ngrams
 from sklearn.model_selection import train_test_split
-
-stop_words = set(stopwords.words('english'))
-important_words = {'not', 'no', 'nor', 'but', 'very', 'too', 'more', 'most', 'against'}
-stop_words = stop_words - important_words
-lemmatizer = WordNetLemmatizer()
+from text_to_string import text
 
 def format_features(tokens):
     return {word: True for word in tokens}
 
-dataset = []
 
-df = pd.read_csv('./Dataset2/file.csv')
+def result(text_from_photo):
+    
+    stop_words = set(stopwords.words('english'))
+    important_words = {'not', 'no', 'nor', 'but', 'very', 'too', 'more', 'most', 'against'}
+    stop_words = stop_words - important_words
+    lemmatizer = WordNetLemmatizer()
 
-def remove_html(text):
-    clean = re.compile('<.*?>')
-    return re.sub(clean, '', text)
+    model_path = "sentiment_model.pickle"
 
-df['review'] = df['review'].apply(remove_html)
+    with open(model_path, 'rb') as f:
+        model_after_training = pickle.load(f)
 
-for index, row in df.iterrows():
-    text = row['review']
-    label = row['sentiment'].upper()
-    tokens = word_tokenize(text.lower())
+    new_opinion = text_from_photo
+    new_tokens = word_tokenize(text_from_photo.lower())
 
-    clean_words = []
+    new_clean = []
 
-    for word in tokens:
-        if word not in stop_words and word.isalnum():
-            lematized_word = lemmatizer.lemmatize(word)
-            clean_words.append(lematized_word)
+    for w in new_tokens:
+        if w not in stop_words:
+            if w.isalnum():
+                lematized_word = lemmatizer.lemmatize(w)
+                new_clean.append(lematized_word)
 
-    list_of_bigrams = list(ngrams(clean_words, 2))
+    new_bigrams = list(ngrams(new_clean, 2))
+    ready_to_test = format_features(new_clean)
+    ready_to_test.update({bg: True for bg in new_bigrams})
 
-    features = format_features(clean_words)
-    features.update({bg: True for bg in list_of_bigrams}) 
+    result = model_after_training.classify(ready_to_test)
+    print(text_from_photo, "\n")
+    print(f"Result: {result}")
 
-    if features:
-        dataset.append((features, label))
+if __name__ == '__main__':
+    found_texts_list = text()
 
-train_set, test_set = train_test_split(dataset, test_size=0.2, random_state=70)
-data_after_training = NaiveBayesClassifier.train(train_set)
-
-accuracy = nltk.classify.accuracy(data_after_training, test_set)
-print(f"\nAccuracy: {accuracy * 100:.2f}%")
-
-new_opinion = input("Type a text: ")
-new_tokens = word_tokenize(new_opinion.lower())
-
-new_clean = []
-
-for w in new_tokens:
-    if w not in stop_words:
-        if w.isalnum():
-            lematized_word = lemmatizer.lemmatize(w)
-            new_clean.append(lematized_word)
-
-new_bigrams = list(ngrams(new_clean, 2))
-ready_to_test = format_features(new_clean)
-ready_to_test.update({bg: True for bg in new_bigrams})
-
-result = data_after_training.classify(ready_to_test)
-print(f"Result: {result}")
+    for single_sentence in found_texts_list:
+        result(single_sentence)
